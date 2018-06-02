@@ -86,6 +86,7 @@
     player.setCanPlay(!!elms.play)
     player.setCanPause(!!elms.pause)
     player.setCanSeek(false)
+    player.setCanChangeVolume(!!elms.volume[2])
 
     var actionsEnabled = {}
     var actionsStates = {}
@@ -97,6 +98,8 @@
     Nuvola.actions.updateStates(actionsStates)
 
     player.setTrackPosition(time ? time[0].textContent || null : null)
+    player.updateVolume(Nuvola.queryAttribute(
+      '.VolumeDurationControl .VolumeSlider__Handle__HitBox', 'aria-valuenow', (value) => value / 100))
 
     // Schedule the next update
     setTimeout(this.update.bind(this), 500)
@@ -132,6 +135,17 @@
       case ACTION_THUMBS_DOWN:
         Nuvola.clickOnElement(elms.dislike)
         break
+      case PlayerAction.CHANGE_VOLUME:
+        if (elms.volume[0]) {
+          elms.volume[0].classList.add('VolumeDurationControl__Duration--leftShift')
+        }
+        if (elms.volume[1]) {
+          elms.volume[1].classList.add('VolumeDurationControl__VolumeSlider--visible')
+        }
+        if (elms.volume[2]) {
+          Nuvola.clickOnElement(elms.volume[2], param, 0.5)
+        }
+        break
     }
   }
 
@@ -142,7 +156,12 @@
       skip: document.querySelector('.SkipButton'),
       replay: document.querySelector('.ReplayButton'),
       dislike: document.querySelector('.ThumbDownButton'),
-      like: document.querySelector('.ThumbUpButton')
+      like: document.querySelector('.ThumbUpButton'),
+      volume: [
+        document.querySelector('.VolumeDurationControl .Duration'),
+        document.querySelector('.VolumeDurationControl .VolumeSlider'),
+        document.querySelector('.VolumeDurationControl .VolumeSlider__ClickTracker')
+      ]
     }
     for (var key in elms) {
       if (elms[key] && elms[key].disabled) {
