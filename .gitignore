@@ -1,0 +1,13 @@
+Makefile
+metadata.json
+icons
+/screenshots/
+nuvola-app-pandora
+eu.tiliado.NuvolaAppPandora.desktop
+eu.tiliado.NuvolaAppPandora.service
+eu.tiliado.NuvolaAppPandora.appdata.xml
+nuvola-app-pandora.metainfo.xml
+eu.tiliado.WebRuntimeAppPandora.desktop
+eu.tiliado.WebRuntimeAppPandora.service
+eu.tiliado.WebRuntimeAppPandora.appdata.xml
+nuvola-app-pandora.metainfo.xml
