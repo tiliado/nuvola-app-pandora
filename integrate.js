@@ -75,14 +75,17 @@
       rating: null
     }
 
-    var elms = this._getElements()
+    var time = this._getTime()
+    track.length = time ? time[1].textContent || null : null
 
+    var elms = this._getElements()
     player.setTrack(track)
     player.setPlaybackState(elms.state)
     player.setCanGoPrev(!!elms.replay)
     player.setCanGoNext(!!elms.skip)
     player.setCanPlay(!!elms.play)
     player.setCanPause(!!elms.pause)
+    player.setCanSeek(false)
 
     var actionsEnabled = {}
     var actionsStates = {}
@@ -92,6 +95,8 @@
     actionsStates[ACTION_THUMBS_DOWN] = elms.dislike && elms.dislike.getAttribute('aria-checked') === 'true'
     Nuvola.actions.updateEnabledFlags(actionsEnabled)
     Nuvola.actions.updateStates(actionsStates)
+
+    player.setTrackPosition(time ? time[0].textContent || null : null)
 
     // Schedule the next update
     setTimeout(this.update.bind(this), 500)
@@ -150,6 +155,14 @@
     }
     elms.state = elms.play ? PlaybackState.PAUSED : (elms.pause ? PlaybackState.PLAYING : PlaybackState.UNKNOWN)
     return elms
+  }
+
+  WebApp._getTime = function () {
+    var elm = document.querySelector('.VolumeDurationControl .Duration')
+    if (elm && elm.childNodes.length === 3) {
+      return [elm.childNodes[0], elm.childNodes[2]]
+    }
+    return null
   }
 
   WebApp.start()
