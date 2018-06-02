@@ -29,8 +29,21 @@
 
   var PlaybackState = Nuvola.PlaybackState
   var PlayerAction = Nuvola.PlayerAction
+  var C_ = Nuvola.Translate.pgettext
+
+  var ACTION_THUMBS_UP = 'thumbs-up'
+  var ACTION_THUMBS_DOWN = 'thumbs-down'
 
   var WebApp = Nuvola.$WebApp()
+
+  WebApp._onInitAppRunner = function (emitter) {
+    Nuvola.WebApp._onInitAppRunner.call(this, emitter)
+
+    Nuvola.actions.addAction('playback', 'win', ACTION_THUMBS_UP, C_('Action', 'Thumbs up'),
+      null, null, null, false)
+    Nuvola.actions.addAction('playback', 'win', ACTION_THUMBS_DOWN, C_('Action', 'Thumbs down'),
+      null, null, null, false)
+  }
 
   WebApp._onInitWebWorker = function (emitter) {
     Nuvola.WebApp._onInitWebWorker.call(this, emitter)
@@ -45,6 +58,7 @@
 
   WebApp._onPageReady = function () {
     Nuvola.actions.connect('ActionActivated', this)
+    player.addExtraActions([ACTION_THUMBS_UP, ACTION_THUMBS_DOWN])
     this.update()
   }
 
@@ -69,6 +83,15 @@
     player.setCanGoNext(!!elms.skip)
     player.setCanPlay(!!elms.play)
     player.setCanPause(!!elms.pause)
+
+    var actionsEnabled = {}
+    var actionsStates = {}
+    actionsEnabled[ACTION_THUMBS_UP] = !!elms.like
+    actionsStates[ACTION_THUMBS_UP] = elms.like && elms.like.getAttribute('aria-checked') === 'true'
+    actionsEnabled[ACTION_THUMBS_DOWN] = !!elms.dislike
+    actionsStates[ACTION_THUMBS_DOWN] = elms.dislike && elms.dislike.getAttribute('aria-checked') === 'true'
+    Nuvola.actions.updateEnabledFlags(actionsEnabled)
+    Nuvola.actions.updateStates(actionsStates)
 
     // Schedule the next update
     setTimeout(this.update.bind(this), 500)
@@ -98,6 +121,12 @@
       case PlayerAction.NEXT_SONG:
         Nuvola.clickOnElement(elms.skip)
         break
+      case ACTION_THUMBS_UP:
+        Nuvola.clickOnElement(elms.like)
+        break
+      case ACTION_THUMBS_DOWN:
+        Nuvola.clickOnElement(elms.dislike)
+        break
     }
   }
 
@@ -107,6 +136,8 @@
       pause: null,
       skip: document.querySelector('.SkipButton'),
       replay: document.querySelector('.ReplayButton'),
+      dislike: document.querySelector('.ThumbDownButton'),
+      like: document.querySelector('.ThumbUpButton')
     }
     for (var key in elms) {
       if (elms[key] && elms[key].disabled) {
