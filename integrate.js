@@ -25,17 +25,13 @@
 'use strict';
 
 (function (Nuvola) {
-  // Create media player component
   var player = Nuvola.$object(Nuvola.MediaPlayer)
 
-  // Handy aliases
   var PlaybackState = Nuvola.PlaybackState
   var PlayerAction = Nuvola.PlayerAction
 
-  // Create new WebApp prototype
   var WebApp = Nuvola.$WebApp()
 
-  // Initialization routines
   WebApp._onInitWebWorker = function (emitter) {
     Nuvola.WebApp._onInitWebWorker.call(this, emitter)
 
@@ -47,27 +43,32 @@
     }
   }
 
-  // Page is ready for magic
   WebApp._onPageReady = function () {
-    // Connect handler for signal ActionActivated
     Nuvola.actions.connect('ActionActivated', this)
-
-    // Start update routine
     this.update()
   }
 
-  // Extract data from the web page
   WebApp.update = function () {
     var track = {
-      title: null,
-      artist: null,
-      album: null,
+      title: (
+        Nuvola.queryText('.nowPlayingTopInfo__current .Marquee__wrapper__content') ||
+        Nuvola.queryText('.Tuner .Tuner__Audio__TrackDetail__title')),
+      artist: (
+        Nuvola.queryText('.nowPlayingTopInfo__current .nowPlayingTopInfo__current__artistName') ||
+        Nuvola.queryText('.Tuner .Tuner__Audio__TrackDetail__artist')),
+      album: Nuvola.queryText('.nowPlayingTopInfo__current .nowPlayingTopInfo__current__albumName'),
       artLocation: null,
       rating: null
     }
 
+    var elms = this._getElements()
+
     player.setTrack(track)
-    player.setPlaybackState(PlaybackState.UNKNOWN)
+    player.setPlaybackState(elms.state)
+    player.setCanGoPrev(!!elms.replay)
+    player.setCanGoNext(!!elms.skip)
+    player.setCanPlay(!!elms.play)
+    player.setCanPause(!!elms.pause)
 
     // Schedule the next update
     setTimeout(this.update.bind(this), 500)
@@ -75,10 +76,49 @@
 
   // Handler of playback actions
   WebApp._onActionActivated = function (emitter, name, param) {
+    var elms = this._getElements()
     switch (name) {
-      case PlayerAction.Play:
+      case PlayerAction.TOGGLE_PLAY:
+        if (elms.play) {
+          Nuvola.clickOnElement(elms.play)
+        } else if (elms.pause) {
+          Nuvola.clickOnElement(elms.pause)
+        }
+        break
+      case PlayerAction.PLAY:
+        Nuvola.clickOnElement(elms.play)
+        break
+      case PlayerAction.PAUSE:
+      case PlayerAction.STOP:
+        Nuvola.clickOnElement(elms.pause)
+        break
+      case PlayerAction.PREV_SONG:
+        Nuvola.clickOnElement(elms.replay)
+        break
+      case PlayerAction.NEXT_SONG:
+        Nuvola.clickOnElement(elms.skip)
         break
     }
+  }
+
+  WebApp._getElements = function () {
+    var elms = {
+      play: document.querySelector('.PlayButton'),
+      pause: null,
+      skip: document.querySelector('.SkipButton'),
+      replay: document.querySelector('.ReplayButton'),
+    }
+    for (var key in elms) {
+      if (elms[key] && elms[key].disabled) {
+        elms[key] = null
+      }
+    }
+    if (elms.play && elms.play.getAttribute('data-qa') === 'pause_button') {
+      elms.pause = elms.play
+      elms.play = null
+    }
+    elms.state = elms.play ? PlaybackState.PAUSED : (elms.pause ? PlaybackState.PLAYING : PlaybackState.UNKNOWN)
+    return elms
   }
 
   WebApp.start()

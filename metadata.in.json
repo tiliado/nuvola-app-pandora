@@ -2,6 +2,7 @@
   "id": "pandora",
   "name": "Pandora",
   "home_url": "https://www.pandora.com/",
+  "allowed_uri": "https?://(www\\.pandora\\.com/)",
   "maintainer_name": "Jiří Janoušek",
   "maintainer_link": "https://github.com/fenryxo",
   "version_major": 1,
