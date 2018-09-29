@@ -1,4 +1,4 @@
-Pandora • Nuvola Apps Runtime
+Pandora • Nuvola Apps Runtime [![CircleCI](https://circleci.com/gh/tiliado/nuvola-app-pandora/tree/master.svg?style=svg)](https://circleci.com/gh/tiliado/nuvola-app-pandora/tree/master)
 =================================
 
 Integration of Pandora into your linux desktop via
