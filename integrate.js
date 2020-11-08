@@ -25,16 +25,16 @@
 'use strict';
 
 (function (Nuvola) {
-  var player = Nuvola.$object(Nuvola.MediaPlayer)
+  const player = Nuvola.$object(Nuvola.MediaPlayer)
 
-  var PlaybackState = Nuvola.PlaybackState
-  var PlayerAction = Nuvola.PlayerAction
-  var C_ = Nuvola.Translate.pgettext
+  const PlaybackState = Nuvola.PlaybackState
+  const PlayerAction = Nuvola.PlayerAction
+  const C_ = Nuvola.Translate.pgettext
 
-  var ACTION_THUMBS_UP = 'thumbs-up'
-  var ACTION_THUMBS_DOWN = 'thumbs-down'
+  const ACTION_THUMBS_UP = 'thumbs-up'
+  const ACTION_THUMBS_DOWN = 'thumbs-down'
 
-  var WebApp = Nuvola.$WebApp()
+  const WebApp = Nuvola.$WebApp()
 
   WebApp._onInitAppRunner = function (emitter) {
     Nuvola.WebApp._onInitAppRunner.call(this, emitter)
@@ -48,7 +48,7 @@
   WebApp._onInitWebWorker = function (emitter) {
     Nuvola.WebApp._onInitWebWorker.call(this, emitter)
 
-    var state = document.readyState
+    const state = document.readyState
     if (state === 'interactive' || state === 'complete') {
       this._onPageReady()
     } else {
@@ -63,7 +63,7 @@
   }
 
   WebApp.update = function () {
-    var track = {
+    const track = {
       title: (
         Nuvola.queryText('.nowPlayingTopInfo__current .Marquee__wrapper__content') ||
         Nuvola.queryText('.Tuner .Tuner__Audio__TrackDetail__title')),
@@ -75,10 +75,10 @@
       rating: null
     }
 
-    var time = this._getTime()
+    const time = this._getTime()
     track.length = time ? time[1].textContent || null : null
 
-    var elms = this._getElements()
+    const elms = this._getElements()
     player.setTrack(track)
     player.setPlaybackState(elms.state)
     player.setCanGoPrev(!!elms.replay)
@@ -88,8 +88,8 @@
     player.setCanSeek(false)
     player.setCanChangeVolume(!!elms.volume[2])
 
-    var actionsEnabled = {}
-    var actionsStates = {}
+    const actionsEnabled = {}
+    const actionsStates = {}
     actionsEnabled[ACTION_THUMBS_UP] = !!elms.like
     actionsStates[ACTION_THUMBS_UP] = elms.like && elms.like.getAttribute('aria-checked') === 'true'
     actionsEnabled[ACTION_THUMBS_DOWN] = !!elms.dislike
@@ -107,7 +107,7 @@
 
   // Handler of playback actions
   WebApp._onActionActivated = function (emitter, name, param) {
-    var elms = this._getElements()
+    const elms = this._getElements()
     switch (name) {
       case PlayerAction.TOGGLE_PLAY:
         if (elms.play) {
@@ -150,7 +150,7 @@
   }
 
   WebApp._getElements = function () {
-    var elms = {
+    const elms = {
       play: document.querySelector('.PlayButton'),
       pause: null,
       skip: document.querySelector('.SkipButton'),
@@ -163,7 +163,7 @@
         document.querySelector('.VolumeDurationControl .VolumeSlider__ClickTracker')
       ]
     }
-    for (var key in elms) {
+    for (const key in elms) {
       if (elms[key] && elms[key].disabled) {
         elms[key] = null
       }
@@ -177,7 +177,7 @@
   }
 
   WebApp._getTime = function () {
-    var elm = document.querySelector('.VolumeDurationControl .Duration')
+    const elm = document.querySelector('.VolumeDurationControl .Duration')
     if (elm && elm.childNodes.length === 3) {
       return [elm.childNodes[0], elm.childNodes[2]]
     }
@@ -185,4 +185,4 @@
   }
 
   WebApp.start()
-})(this)  // function(Nuvola)
+})(this) // function(Nuvola)
